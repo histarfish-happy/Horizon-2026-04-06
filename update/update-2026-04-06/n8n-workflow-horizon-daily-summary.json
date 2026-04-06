@@ -1,0 +1,104 @@
+{
+  "name": "Horizon Daily Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 */2 * *"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "bash -c \"cd /home/ubuntu/projects/Horizon-2026-04-06 && set -a && source .env && set +a && export PATH=\\\"$PATH:/home/ubuntu/.local/bin\\\" && bash scripts/daily-run.sh 2>&1\""
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Run Horizon",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [470, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "✅ Horizon 摘要已更新\n时间：{{ $now.format('yyyy-MM-dd HH:mm') }}\n\n{{ $json.stdout.slice(0, 500) }}",
+        "additionalFields": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Telegram Success",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [690, 180],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "❌ Horizon 运行失败\n时间：{{ $now.format('yyyy-MM-dd HH:mm') }}\n\n{{ $json.stderr || $json.message || 'unknown error' }}",
+        "additionalFields": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000004",
+      "name": "Telegram Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [690, 420],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Horizon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Horizon": {
+      "main": [
+        [
+          {
+            "node": "Telegram Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

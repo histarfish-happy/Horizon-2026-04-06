@@ -64,9 +64,9 @@ ssh your-user@your-vps-ip
 ### 步骤 2.2：克隆仓库（你来做）
 
 ```bash
-cd /home/user/projects   # 或你 VPS 上的项目目录
-git clone https://github.com/你的用户名/Horizon.git
-cd Horizon
+cd /home/ubuntu/projects   # 或你 VPS 上的项目目录
+git clone https://github.com/histarfish-happy/Horizon-2026-04-06.git
+cd Horizon-2026-04-06
 ```
 
 > 如果 repo 是私有的，需要先在 VPS 上配置 SSH key 并添加到 GitHub。
@@ -85,7 +85,7 @@ source ~/.bashrc   # 或 source ~/.zshrc
 ### 步骤 2.4：安装项目依赖（你来做）
 
 ```bash
-cd /home/user/projects/Horizon
+cd /home/ubuntu/projects/Horizon-2026-04-06
 uv sync
 ```
 
@@ -142,10 +142,10 @@ uv run horizon --hours 48
 - Command 填入：
 
 ```bash
-cd /home/user/projects/Horizon && source .env && bash scripts/daily-run.sh
+cd /home/ubuntu/projects/Horizon-2026-04-06 && set -a && source .env && set +a && export PATH="$PATH:/home/ubuntu/.local/bin" && bash scripts/daily-run.sh
 ```
 
-> 注意：把 `/home/user/projects/Horizon` 替换成你 VPS 上的实际路径。
+> 注意：必须显式加 `/home/ubuntu/.local/bin` 到 PATH，否则 n8n 的受限 shell 找不到 uv。
 
 - 勾选 **Execute in node's working directory**（如有此选项）
 

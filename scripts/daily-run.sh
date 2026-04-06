@@ -23,23 +23,4 @@ uv sync --quiet
 uv run horizon --hours 24
 
 # 4. Deploy docs to gh-pages
-echo "$LOG_PREFIX Deploying to gh-pages..."
-
-# Use a temporary worktree to update gh-pages without switching branches
-TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
-
-git fetch origin gh-pages:gh-pages 2>/dev/null || git checkout --orphan gh-pages && git checkout main
-
-git worktree add "$TMPDIR" gh-pages
-cp -r docs/* "$TMPDIR/"
-
-cd "$TMPDIR"
-git add -A
-git commit -m "Daily Summary: $(date '+%Y-%m-%d')" || { echo "$LOG_PREFIX Nothing to commit."; exit 0; }
-git push origin gh-pages
-
-cd "$PROJECT_DIR"
-git worktree remove "$TMPDIR"
-
-echo "$LOG_PREFIX Done."
+bash "$SCRIPT_DIR/deploy.sh"
